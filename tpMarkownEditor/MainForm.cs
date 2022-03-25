@@ -67,7 +67,13 @@ namespace MarkdownEditor
                 }
             }
         }
- 
+        void Pager_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var Page = Pager.SelectedTab as MarkdownTabPage;
+            if (Page != null)
+                Page.SetCurrentDirectory();
+        }
+
         void CreateNewDocument()
         {
             var Page = new MarkdownTabPage(Pager);
@@ -83,9 +89,7 @@ namespace MarkdownEditor
                 {
                     var Page = new MarkdownTabPage(Pager, F.FileName);
                 }
-            }
-
-            
+            }            
         }
         void SaveDocument()
         {
@@ -146,9 +150,17 @@ namespace MarkdownEditor
             mnuExit.Click += AnyClick;
 
             Pager.MouseDoubleClick += Pager_MouseDoubleClick;
+            Pager.SelectedIndexChanged += Pager_SelectedIndexChanged;
+
+            if (File.Exists("CheatSheet.md"))
+            {
+                new MarkdownTabPage(Pager, "CheatSheet.md");
+            }
 
         }
- 
+
+
+
         protected override void OnShown(EventArgs e)
         {
             if (!DesignMode)

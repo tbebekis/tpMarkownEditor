@@ -45,15 +45,60 @@ namespace MarkdownEditor
 
         /* private */
         bool fModified;
+        string fFilePath;
 
         Panel fBrowserPanel;
         SplitContainer Splitter;
         //RichTextBox Editor;
         FastColoredTextBox Editor;
         WebBrowser Browser;
-        string FilePath;
+ 
 
         TextStyle brownStyle = new TextStyle(Brushes.Brown, null, FontStyle.Regular);
+
+        /// <summary>
+        /// =======
+        /// </summary>
+        const string SHeading1 = @"";
+        /// <summary>
+        /// -----------
+        /// </summary>
+        const string SHeading2 = @"";
+        /// <summary>
+        /// # ## ###
+        /// </summary>
+        const string SHeading3 = @"";
+        /// <summary>
+        /// []()
+        /// </summary>
+        const string SLink = @"";
+        /// <summary>
+        /// ![]()
+        /// </summary>
+        const string SImage = @"";
+        /// <summary>
+        /// **bold**
+        /// </summary>
+        const string SBold = @"";
+        /// <summary>
+        /// _italic_
+        /// </summary>
+        const string SItalic = @"";
+        /// <summary>
+        /// `monospace`
+        /// </summary>
+        const string SMonospace = @"";
+        /// <summary>
+        /// ``` code here ```
+        /// </summary>
+        const string SSourceCode = @"";
+        /// <summary>
+        /// &gt; 
+        /// <para>&gt;</para>
+        /// </summary>
+        const string SBlockQuote = @"";
+
+
         string Underscores = @"([_].*?[_])";
         string A = @"^\[[^\)]+\]";
 
@@ -63,12 +108,12 @@ namespace MarkdownEditor
 
             Browser.DocumentText = App.ToHtml(Editor.Text);
             Modified = true;
+ 
 
+            // clear previous highlighting
+             e.ChangedRange.ClearStyle(brownStyle);
+ 
 
-            //clear previous highlighting
-           // e.ChangedRange.ClearStyle(brownStyle);
-            //highlight tags
-           
 
             e.ChangedRange.SetStyle(brownStyle, @"=.*$", RegexOptions.Multiline);
             e.ChangedRange.SetStyle(brownStyle, Underscores);
@@ -115,33 +160,22 @@ namespace MarkdownEditor
 
             Splitter.SplitterDistance = Splitter.Width / 2;
 
+            Pager.SelectedTab = this;
             Editor.TextChanged += Editor_TextChanged;
+            Editor.KeyDown += Editor_KeyDown;
 
             if (!string.IsNullOrWhiteSpace(OpenFilePath))
             {
-                FilePath = OpenFilePath;
-
-                Environment.CurrentDirectory = Path.GetDirectoryName(FilePath);
+                FilePath = OpenFilePath; 
 
                 this.Text = Path.GetFileName(FilePath);
                 string MarkdownText = File.ReadAllText(FilePath);
-                Editor.Text = MarkdownText;
-                Browser.DocumentText = App.ToHtml(Editor.Text);               
+                Editor.Text = MarkdownText;            
             }
-            
-            Editor.KeyDown += Editor_KeyDown;
-
-            Pager.SelectedTab = this;
-
+ 
             Modified = false;
         }
-        public bool CanClose()
-        {
-            if (Modified)
-                return App.QuestionBox("Discard changes?");
-
-            return true;
-        }
+       
 
 
         /* public */
@@ -170,6 +204,7 @@ namespace MarkdownEditor
                 if (F.ShowDialog() == DialogResult.OK)
                 {
                     FilePath = F.FileName;
+                    Environment.CurrentDirectory = Path.GetDirectoryName(FilePath);
                     string MarkdownText = Editor.Text;
                     File.WriteAllText(FilePath, MarkdownText);
                     Modified = false;
@@ -204,6 +239,23 @@ namespace MarkdownEditor
             (this.Parent as TabControl).TabPages.Remove(this);
         }
 
+        public bool CanClose()
+        {
+            if (Modified)
+                return App.QuestionBox("Discard changes?");
+
+            return true;
+        }
+        public void SetCurrentDirectory()
+        {
+            if (!string.IsNullOrWhiteSpace(fFilePath) && File.Exists(fFilePath))
+            {
+                fFilePath = Path.GetFullPath(fFilePath);
+                Environment.CurrentDirectory = Path.GetDirectoryName(fFilePath);
+            }
+                
+        }
+
         /* properties */
         public bool Modified
         {
@@ -222,6 +274,15 @@ namespace MarkdownEditor
                     if (Text.EndsWith("*"))
                         Text = Text.Substring(0, Text.Length - 1);
                 }
+            }
+        }
+        public string FilePath
+        {
+            get { return fFilePath; }
+            set
+            {
+                fFilePath = value;
+                SetCurrentDirectory();
             }
         }
           
