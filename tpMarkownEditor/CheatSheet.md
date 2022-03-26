@@ -22,7 +22,7 @@ hr tag
      - broccoli
 
 
-[link] (http://example.com)
+[link](http://example.com)
 
 ![Image](Icon-pictures.png "icon")
 

@@ -49,58 +49,75 @@ namespace MarkdownEditor
 
         Panel fBrowserPanel;
         SplitContainer Splitter;
-        //RichTextBox Editor;
         FastColoredTextBox Editor;
-        WebBrowser Browser;
- 
+        WebBrowser Browser; 
 
-        TextStyle brownStyle = new TextStyle(Brushes.Brown, null, FontStyle.Regular);
+        TextStyle HeadingStyle = new TextStyle(Brushes.SteelBlue, null, FontStyle.Bold);
 
-        /// <summary>
-        /// =======
-        /// </summary>
-        const string SHeading1 = @"";
-        /// <summary>
-        /// -----------
-        /// </summary>
-        const string SHeading2 = @"";
+        TextStyle BoldStyle = new TextStyle(Brushes.Black, null, FontStyle.Bold);        
+        TextStyle ItalicStyle = new TextStyle(Brushes.Black, null, FontStyle.Italic);
+        TextStyle MonospaceStyle = new TextStyle(Brushes.Black, Brushes.LightYellow, FontStyle.Regular);
+
+        TextStyle LinkStyle = new TextStyle(Brushes.DarkMagenta, null, FontStyle.Bold);
+        TextStyle ImageStyle = new TextStyle(Brushes.Orange, null, FontStyle.Bold);
+
+        TextStyle SourceCodeStyle = new TextStyle(Brushes.Black, Brushes.LightYellow, FontStyle.Regular);
+        TextStyle BlockquotStyle = new TextStyle(Brushes.Black, Brushes.LightGreen, FontStyle.Regular);
+        TextStyle SubOrSuperscript = new TextStyle(Brushes.Black, Brushes.FloralWhite, FontStyle.Regular);
+
+
         /// <summary>
         /// # ## ###
         /// </summary>
-        const string SHeading3 = @"";
+        const string SHeading1 = @"(#+)(.*)";  
         /// <summary>
-        /// []()
+        /// =======
         /// </summary>
-        const string SLink = @"";
+        const string SHeading2 = @"^=+";  
         /// <summary>
-        /// ![]()
+        /// -----------
         /// </summary>
-        const string SImage = @"";
+        const string SHeading3 = @"^-+";
         /// <summary>
         /// **bold**
         /// </summary>
-        const string SBold = @"";
+        const string SBold = @"[\*\*].*[\*\*]";  
         /// <summary>
         /// _italic_
         /// </summary>
-        const string SItalic = @"";
+        const string SItalic = @"[_][^_].*[^_][_]";
         /// <summary>
         /// `monospace`
         /// </summary>
-        const string SMonospace = @"";
+        const string SMonospace = @"[`][^`].*[^`][`]";
+        /// <summary>
+        /// []()
+        /// </summary>
+        const string SLink = @"^\[(.*?)\]\((.*?)\)";  
+        /// <summary>
+        /// ![]()
+        /// </summary>
+        const string SImage = @"^!\[(.*?)\]\((.*?)\)";
         /// <summary>
         /// ``` code here ```
         /// </summary>
-        const string SSourceCode = @"";
+        const string SSourceCode = @"^```((.*|\n|\r)*)```";
         /// <summary>
         /// &gt; 
         /// <para>&gt;</para>
         /// </summary>
-        const string SBlockQuote = @"";
+        const string SBlockQuote = @"^\>(.*)";
+        /// <summary>
+        /// ~subscript~
+        /// </summary>
+        const string SSubscript = @"~(.*?)~";
+        /// <summary>
+        /// ^superscript^
+        /// </summary>
+        const string SSuperscript = @"\^(.*?)\^";
 
-
-        string Underscores = @"([_].*?[_])";
-        string A = @"^\[[^\)]+\]";
+ 
+        static RegexOptions MultiLine = RegexOptions.Multiline | SyntaxHighlighter.RegexCompiledOption;
 
         void Editor_TextChanged(object sender, EventArgs ea)
         {
@@ -108,16 +125,29 @@ namespace MarkdownEditor
 
             Browser.DocumentText = App.ToHtml(Editor.Text);
             Modified = true;
+
+            e.ChangedRange.ClearFoldingMarkers();
+            e.ChangedRange.SetFoldingMarkers("#", "#");
+
+            // e.ChangedRange.ClearStyle(BrownStyle);   // clear previous highlighting
+            e.ChangedRange.SetStyle(HeadingStyle, SHeading1, MultiLine);
  
+            e.ChangedRange.SetStyle(HeadingStyle, SHeading2, MultiLine);
+            e.ChangedRange.SetStyle(HeadingStyle, SHeading3, MultiLine);
 
-            // clear previous highlighting
-             e.ChangedRange.ClearStyle(brownStyle);
- 
+            e.ChangedRange.SetStyle(BoldStyle, SBold, MultiLine);
+            e.ChangedRange.SetStyle(ItalicStyle, SItalic, MultiLine);
+            e.ChangedRange.SetStyle(MonospaceStyle, SMonospace, MultiLine);
 
+            e.ChangedRange.SetStyle(LinkStyle, SLink, MultiLine);
+            e.ChangedRange.SetStyle(ImageStyle, SImage, MultiLine);
 
-            e.ChangedRange.SetStyle(brownStyle, @"=.*$", RegexOptions.Multiline);
-            e.ChangedRange.SetStyle(brownStyle, Underscores);
-            e.ChangedRange.SetStyle(brownStyle, A);
+            e.ChangedRange.SetStyle(SourceCodeStyle, SSourceCode, MultiLine);
+            e.ChangedRange.SetStyle(BlockquotStyle, SBlockQuote, MultiLine);
+
+            e.ChangedRange.SetStyle(SubOrSuperscript, SSubscript, MultiLine);
+            e.ChangedRange.SetStyle(SubOrSuperscript, SSuperscript, MultiLine);
+
         }
         void Editor_KeyDown(object sender, KeyEventArgs e)
         {
@@ -138,8 +168,6 @@ namespace MarkdownEditor
             Editor.Dock = DockStyle.Fill;
             Editor.Parent = Splitter.Panel1;
             Editor.Font = new Font("Consolas", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            //Editor.Multiline = true;
-            //Editor.AcceptsTab = true;
             Editor.Language = Language.Custom;
 
             fBrowserPanel = new Panel();

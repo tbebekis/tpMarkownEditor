@@ -84,6 +84,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScrollSyncer.cs" />
     <EmbeddedResource Include="MarkdownTabPage.resx">
       <DependentUpon>MarkdownTabPage.cs</DependentUpon>
     </EmbeddedResource>
