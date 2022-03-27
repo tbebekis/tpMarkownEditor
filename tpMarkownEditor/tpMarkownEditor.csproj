@@ -65,7 +65,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App.Constants.cs" />
     <Compile Include="App.cs" />
+    <Compile Include="FastColoredTextBoxEx.cs" />
     <Compile Include="MarkdownTabPage.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -84,7 +86,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScrollSyncer.cs" />
+    <Compile Include="SyntaxHighlighterDef.cs" />
+    <Compile Include="WebBrowserEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="MarkdownTabPage.resx">
       <DependentUpon>MarkdownTabPage.cs</DependentUpon>
     </EmbeddedResource>

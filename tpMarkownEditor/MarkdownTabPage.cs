@@ -49,8 +49,9 @@ namespace MarkdownEditor
 
         Panel fBrowserPanel;
         SplitContainer Splitter;
-        FastColoredTextBox Editor;
-        WebBrowser Browser; 
+        FastColoredTextBoxEx Editor;
+        WebBrowserEx Browser;
+ 
 
         TextStyle HeadingStyle = new TextStyle(Brushes.SteelBlue, null, FontStyle.Bold);
 
@@ -120,34 +121,9 @@ namespace MarkdownEditor
         static RegexOptions MultiLine = RegexOptions.Multiline | SyntaxHighlighter.RegexCompiledOption;
 
         void Editor_TextChanged(object sender, EventArgs ea)
-        {
-            TextChangedEventArgs e = ea as TextChangedEventArgs;
-
-            Browser.DocumentText = App.ToHtml(Editor.Text);
+        { 
             Modified = true;
-
-            e.ChangedRange.ClearFoldingMarkers();
-            e.ChangedRange.SetFoldingMarkers("#", "#");
-
-            // e.ChangedRange.ClearStyle(BrownStyle);   // clear previous highlighting
-            e.ChangedRange.SetStyle(HeadingStyle, SHeading1, MultiLine);
- 
-            e.ChangedRange.SetStyle(HeadingStyle, SHeading2, MultiLine);
-            e.ChangedRange.SetStyle(HeadingStyle, SHeading3, MultiLine);
-
-            e.ChangedRange.SetStyle(BoldStyle, SBold, MultiLine);
-            e.ChangedRange.SetStyle(ItalicStyle, SItalic, MultiLine);
-            e.ChangedRange.SetStyle(MonospaceStyle, SMonospace, MultiLine);
-
-            e.ChangedRange.SetStyle(LinkStyle, SLink, MultiLine);
-            e.ChangedRange.SetStyle(ImageStyle, SImage, MultiLine);
-
-            e.ChangedRange.SetStyle(SourceCodeStyle, SSourceCode, MultiLine);
-            e.ChangedRange.SetStyle(BlockquotStyle, SBlockQuote, MultiLine);
-
-            e.ChangedRange.SetStyle(SubOrSuperscript, SSubscript, MultiLine);
-            e.ChangedRange.SetStyle(SubOrSuperscript, SSuperscript, MultiLine);
-
+            Browser.DocumentText = App.ToHtml(Editor.Text);
         }
         void Editor_KeyDown(object sender, KeyEventArgs e)
         {
@@ -164,18 +140,19 @@ namespace MarkdownEditor
             Splitter = new SplitContainer();
             Splitter.Dock = DockStyle.Fill;
 
-            Editor = new FastColoredTextBox(); // new RichTextBox();
+            Editor = new FastColoredTextBoxEx(); // new RichTextBox();
             Editor.Dock = DockStyle.Fill;
             Editor.Parent = Splitter.Panel1;
             Editor.Font = new Font("Consolas", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
             Editor.Language = Language.Custom;
+            Editor.DescriptionFile = SyntaxHighlighterDef.FilePath;
 
             fBrowserPanel = new Panel();
             fBrowserPanel.BorderStyle = BorderStyle.Fixed3D;
             fBrowserPanel.Dock = DockStyle.Fill;
             fBrowserPanel.Parent = Splitter.Panel2;
 
-            Browser = new WebBrowser();
+            Browser = new WebBrowserEx();
             Browser.Dock = DockStyle.Fill;
             Browser.Parent = fBrowserPanel;
 
@@ -187,10 +164,16 @@ namespace MarkdownEditor
             this.PerformLayout();
 
             Splitter.SplitterDistance = Splitter.Width / 2;
+            
+            Editor.Browser = Browser; 
 
             Pager.SelectedTab = this;
+
+            Application.DoEvents();
+
             Editor.TextChanged += Editor_TextChanged;
             Editor.KeyDown += Editor_KeyDown;
+
 
             if (!string.IsNullOrWhiteSpace(OpenFilePath))
             {
@@ -198,10 +181,12 @@ namespace MarkdownEditor
 
                 this.Text = Path.GetFileName(FilePath);
                 string MarkdownText = File.ReadAllText(FilePath);
-                Editor.Text = MarkdownText;            
+                Editor.Text = MarkdownText;
+                Application.DoEvents();
             }
  
             Modified = false;
+ 
         }
        
 
