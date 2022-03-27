@@ -181,7 +181,18 @@ namespace MarkdownEditor
 
                 this.Text = Path.GetFileName(FilePath);
                 string MarkdownText = File.ReadAllText(FilePath);
-                Editor.Text = MarkdownText;
+
+                Cursor.Current = Cursors.WaitCursor;
+                Application.DoEvents();
+                try
+                {
+                    Editor.Text = MarkdownText;
+                }
+                finally
+                {
+                    Cursor.Current = Cursors.Default;
+                }
+                
                 Application.DoEvents();
             }
  

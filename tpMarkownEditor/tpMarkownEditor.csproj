@@ -67,7 +67,9 @@
   <ItemGroup>
     <Compile Include="App.Constants.cs" />
     <Compile Include="App.cs" />
-    <Compile Include="FastColoredTextBoxEx.cs" />
+    <Compile Include="FastColoredTextBoxEx.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="MarkdownTabPage.cs">
       <SubType>Component</SubType>
     </Compile>
